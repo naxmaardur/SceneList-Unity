@@ -1,0 +1,17 @@
+{
+
+"name" : "com.naxmaardur.scenelist",
+"version": "1.0.0",
+"displayName": "Naxmaardur.SceneList",
+"description": "An editor window that shows all Scenes and makes them easily available.",
+"unity": "6000.0",
+"keywords": [
+    "tools"
+  ],
+  "author": {
+    "name": "naxmaardur"
+  },
+  "dependencies":{
+  "com.eflatun.scenereference" : "4.1.1"
+  }
+}

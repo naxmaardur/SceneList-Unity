@@ -1,0 +1,11 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" xsi="http://www.w3.org/2001/XMLSchema-instance" engine="UnityEngine.UIElements" editor="UnityEditor.UIElements" noNamespaceSchemaLocation="../../../../UIElementsSchema/UIElements.xsd" editor-extension-mode="False">
+    <Style src="project://database/Packages/com.naxmaardur.scenelist/Editor/SceneListWindow/SceneListWindow.uss?fileID=7433441132597879392&amp;guid=9733eb253c78e444594b57d1dcd89bcc&amp;type=3#SceneListWindow"/>
+    <ui:VisualElement name="Element">
+        <ui:Image name="PinIcon" class="Icon"/>
+        <ui:Image name="ObjectIcon" class="Icon"/>
+        <ui:Label name="SceneIndex" text="200" style="-unity-text-align: upper-center;"/>
+        <ui:Label name="ObjectLabel" text="Placeholder"/>
+        <ui:Button text="Play" name="Button2" style="height: 16px; width: 41px; align-content: auto;"/>
+        <ui:Button text="Open" name="Button" style="height: 16px; width: 41px; align-content: auto;"/>
+    </ui:VisualElement>
+</ui:UXML>
