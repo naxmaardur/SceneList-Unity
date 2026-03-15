@@ -29,8 +29,6 @@ namespace Naxmaardur.SceneList
 		public void CreateGUI()
 		{
 			sceneIcon = EditorGUIUtility.IconContent("d_Scene").image;
-			//WindowTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/_ProjectSurvival/editor/ProjectSurvival_Editor/EditorWindows/SceneListWindow/SceneListWindow.uxml");
-			//ElementTemplate = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/_ProjectSurvival/editor/ProjectSurvival_Editor/EditorWindows/SceneListWindow/SceneListWindowElement.uxml");
 
 			TemplateContainer window = WindowTemplate.Instantiate();
 			window.style.height = new StyleLength(Length.Percent(100));
