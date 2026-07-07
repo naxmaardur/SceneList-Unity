@@ -1,5 +1,7 @@
 # Scene List for Unity
-An editor window that shows all Scenes and makes them easily available.
+An editor window that shows all Scenes and makes them easily available
+
+<img width="871" height="423" alt="119" src="https://github.com/user-attachments/assets/5f94752b-119f-4733-8b2b-b06996c838f1" />
 
 ### Features
 - All Project scenes in one place
