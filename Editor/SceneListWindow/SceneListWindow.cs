@@ -3,7 +3,6 @@ using UnityEditor;
 using UnityEngine.UIElements;
 using System.Collections.Generic;
 using UnityEditor.SceneManagement;
-using Eflatun.SceneReference;
 
 namespace Naxmaardur.SceneList
 {
@@ -18,7 +17,7 @@ namespace Naxmaardur.SceneList
 		private SceneListData sceneListData;
 		private Texture sceneIcon;
 
-		public static System.Action<SceneReference> OpenSceneEvent;
+		public static System.Action<sceneRef> OpenSceneEvent;
 
 		[MenuItem("Tools/Scene List")]
 		public static void ShowWindow()
@@ -44,6 +43,7 @@ namespace Naxmaardur.SceneList
 
 		private void OnDestroy()
 		{
+			if(sceneListData == null) { return; }
 			sceneListData.onChanged -= RefreshElements;
 		}
 
@@ -104,7 +104,7 @@ namespace Naxmaardur.SceneList
 				if (i < itemCount)
 				{
 					int x = i + offset;
-					SceneReference scene = sceneListData[x];
+					sceneRef scene = sceneListData[x];
 					element.VisualElement.style.display = DisplayStyle.Flex;
 					string nameToUse = scene.Name;
 					element.ObjectLabel.text = nameToUse;
@@ -134,7 +134,7 @@ namespace Naxmaardur.SceneList
 
 		private void OnElementClicked(ClickEvent evt, VisualElement root)
 		{
-			SceneReference sceneRef = ElementToSceneRef(root);
+            sceneRef sceneRef = ElementToSceneRef(root);
 			SceneAsset sceneAsset = AssetDatabase.LoadAssetAtPath<SceneAsset>(sceneRef.Path);
 			if (Selection.activeObject != sceneAsset)
 			{
@@ -144,7 +144,7 @@ namespace Naxmaardur.SceneList
 
 		private void OnPinClicked(ClickEvent evt, VisualElement element)
 		{
-			SceneReference scene = ElementToSceneRef(element);
+			sceneRef scene = ElementToSceneRef(element);
 			if (!sceneListData.IsPinned(scene))
 			{
 				sceneListData.Pin(scene);
@@ -158,12 +158,12 @@ namespace Naxmaardur.SceneList
 
 		private void OnOpenClicked(ClickEvent evt, VisualElement element)
 		{
-			SceneReference scene = ElementToSceneRef(element);
+            sceneRef scene = ElementToSceneRef(element);
 			OpenScene(scene);
 			evt.StopPropagation();
 		}
 
-		private void OpenScene(SceneReference sceneReference)
+		private void OpenScene(sceneRef sceneReference)
 		{
 			if (!Application.isPlaying)
 			{
@@ -181,12 +181,12 @@ namespace Naxmaardur.SceneList
 
 		private void OnPlayClicked(ClickEvent evt, VisualElement element)
 		{
-			SceneReference scene = ElementToSceneRef(element);
+			sceneRef scene = ElementToSceneRef(element);
 			PlayScene(scene);
 			evt.StopPropagation();
 		}
 
-		private void PlayScene(SceneReference sceneReference)
+		private void PlayScene(sceneRef sceneReference)
 		{
 
 			if (!Application.isPlaying)
@@ -204,14 +204,14 @@ namespace Naxmaardur.SceneList
 			}
 		}
 
-		public SceneReference ElementToSceneRef(VisualElement root)
+		public sceneRef ElementToSceneRef(VisualElement root)
 		{
 			int index = root.parent.IndexOf(root);
 			if (root.parent != scrollViewPins)
 			{
 				index += sceneListData.PinnedCount;
 			}
-			SceneReference sceneRef = sceneListData[index];
+            sceneRef sceneRef = sceneListData[index];
 			return sceneRef;
 		}
 

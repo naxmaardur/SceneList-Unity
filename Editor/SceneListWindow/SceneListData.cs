@@ -1,11 +1,11 @@
 using UnityEngine;
 using UnityEditor;
-using Eflatun.SceneReference;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEditor.SceneManagement;
 using UnityEngine.SceneManagement;
+using System.IO;
 
 namespace Naxmaardur.SceneList
 {
@@ -15,9 +15,9 @@ namespace Naxmaardur.SceneList
     {
 		public event Action onChanged;
 		[SerializeField]
-		private List<SceneReference> scenes = new();
+		private List<sceneRef> scenes = new();
 		[SerializeField]
-		private List<SceneReference> pinned = new();
+		private List<sceneRef> pinned = new();
 		private HashSet<string> pinnedHaset;
 
 
@@ -34,13 +34,13 @@ namespace Naxmaardur.SceneList
 		{
 			pinnedHaset = new();
 
-			foreach(SceneReference scene in pinned)
+			foreach(sceneRef scene in pinned)
 			{
 				pinnedHaset.Add(scene.Guid);
 			}
 		}
 
-		public SceneReference this[int i]
+		public sceneRef this[int i]
 		{
 			get { return i < pinned.Count ? pinned[i] : scenes[i - pinned.Count]; }
 		}
@@ -55,7 +55,7 @@ namespace Naxmaardur.SceneList
 
 			foreach (string guid in guids)
 			{
-				SceneReference scene = new(guid);
+				sceneRef scene = new(guid);
 				scenes.Add(scene);
 			}
 			//Order ascending but -1 at end
@@ -69,7 +69,7 @@ namespace Naxmaardur.SceneList
 			pinned = pinned.OrderBy(scene => scene.BuildIndex == -1 ? int.MaxValue : scene.BuildIndex).ToList();
 		}
 
-		public void Pin(SceneReference sceneToPin)
+		public void Pin(sceneRef sceneToPin)
 		{
 			pinned.Add(sceneToPin);
 			pinnedHaset.Add(sceneToPin.Guid);
@@ -77,7 +77,7 @@ namespace Naxmaardur.SceneList
 			onChanged?.Invoke();
 		}
 
-		public void Unpin(SceneReference scene)
+		public void Unpin(sceneRef scene)
 		{
 			for (int i = pinned.Count - 1; i >= 0; i--)
 			{
@@ -92,41 +92,45 @@ namespace Naxmaardur.SceneList
 
 		}
 
-		public bool IsPinned(SceneReference scene)
+		public bool IsPinned(sceneRef scene)
 		{
 			return pinnedHaset.Contains(scene.Guid);
 		}
 
-		public bool IsBuild(SceneReference scene)
+		public bool IsBuild(sceneRef scene)
 		{
-			return scene.UnsafeReason != SceneReferenceUnsafeReason.NotInBuild;
+			return scene.unsafeReason != sceneRef.UnsafeReason.NotInBuild;
 		}
 
-		public bool IsOpen(SceneReference scene)
+		public bool IsOpen(sceneRef scene)
 		{
-			return scene.LoadedScene != null && scene.LoadedScene.isLoaded;
+			for (int i = 0; i < EditorSceneManager.sceneCount; i++)
+			{
+				Scene loadedScene =EditorSceneManager.GetSceneAt(i);
+				if(loadedScene == scene.Scene.Value)
+				{
+					return true;
+				}
+			}
+
+			return false;
 		}
 
 		public void Clean()
 		{
 			RemoveNullEntries(pinned);
 			pinnedHaset = new();
-			foreach (SceneReference scene in pinned)
+			foreach (sceneRef scene in pinned)
 			{
 				pinnedHaset.Add(scene.Guid);
 			}
 		}
 
-		private void RemoveNullEntries(List<SceneReference> list)
+		private void RemoveNullEntries(List<sceneRef> list)
 		{
 			for (int i = list.Count - 1; i >= 0; i--)
 			{
-				if (list[i] == null)
-				{
-					list.RemoveAt(i);
-					continue;
-				}
-				if (list[i].State == SceneReferenceState.Unsafe)
+				if (list[i].Path == string.Empty)
 				{
 					list.RemoveAt(i);
 					continue;
@@ -147,7 +151,9 @@ namespace Naxmaardur.SceneList
 		private static void OnSceneOpenEditor(Scene scene, OpenSceneMode loadSceneMode)
 		{
 			SceneListData.instance.onChanged?.Invoke();
-		}
+			SceneListData.instance.ListScenes();
+
+        }
 
 		private static void OnSceneOpen(Scene scene, LoadSceneMode loadSceneMode)
 		{
@@ -179,4 +185,56 @@ namespace Naxmaardur.SceneList
 			}
 		}
 	}
+    public struct sceneRef
+    {
+        public Scene? Scene;
+        public int BuildIndex;
+        public string Guid;
+		public string Path;
+		public UnsafeReason unsafeReason;
+		public string Name;
+
+		public sceneRef(string guid)
+		{
+            Path = AssetDatabase.GUIDToAssetPath(guid);
+			if(Path != string.Empty)
+			{
+                Scene = EditorSceneManager.GetSceneByPath(Path);
+                BuildIndex = SceneUtility.GetBuildIndexByScenePath(Path);
+                unsafeReason = BuildIndex != -1?UnsafeReason.None : UnsafeReason.NotInBuild;
+				Name = System.IO.Path.GetFileNameWithoutExtension(Path);
+            }
+			else
+			{
+				Scene = null;
+				BuildIndex = -1;
+				unsafeReason = UnsafeReason.NotInMaps;
+				Name = "";
+            }
+			Guid = guid;
+		}
+
+        public enum UnsafeReason
+        {
+            /// <summary>
+            /// is safe to use.
+            /// </summary>
+            None,
+
+            /// <summary>
+            ///is empty. It is not referencing anything.
+            /// </summary>
+            Empty,
+
+            /// <summary>
+            /// The scene referenced is not found in any of the maps.
+            /// </summary>
+            NotInMaps,
+
+            /// <summary>
+            /// The scene referenced by this is not added and enabled in build.
+            /// </summary>
+            NotInBuild,
+        }
+    }
 }

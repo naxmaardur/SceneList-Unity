@@ -12,8 +12,6 @@ An editor window that shows all Scenes and makes them easily available.
 - Button to open the Scene and directly enter play mode
 - SceneListWindow.OpenSceneEvent to handle in-game scene change requests of the window
 
-## Dependencies
-[Eflatun.SceneReference by starikcetin](https://github.com/starikcetin/Eflatun.SceneReference)
 
 ## Installation
 1. Open the Package Manager, press the `+` button, and select "Add package from git URL."
